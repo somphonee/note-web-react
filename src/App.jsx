@@ -3,17 +3,23 @@ import { useState } from 'react'
 import "@picocss/pico"
 import "./App.css"
 function App() {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [notes, setNotes] = useState([]);
+
   return (
     <main className="container">
     <h1 className="app-title"> My Notes </h1>
-    
     <div className="note-list" >
-      <article className="note-item">
-        <div className="note-title">Note 1</div>
+      {notes.map ((note, index ) => (
+
+       <article key = {index} className="note-item">
+        <div className="note-title">{note.title}</div>
+        <button className="note-edit-button">🖋️</button>
       </article>
-      <article className="note-item">
-        <div className="note-title" >Note 2</div>
-      </article>
+
+      ))}
+
     </div>
 
     <label htmlFor='title'>
@@ -23,6 +29,8 @@ function App() {
         placeholder="title"
         type="text"
         required
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
       />
     </label>
 
@@ -32,9 +40,20 @@ function App() {
         name="content"
         type="text"
         required
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
       />
     </label>
-    <button type="submit">Add Note</button>
+    <button 
+    type="submit"
+    onClick={(e) => {
+      e.preventDefault();
+      setNotes([...notes, { title, content }]);
+      setTitle('');
+      setContent('');
+    }}
+
+    >Add Note</button>
   
 
     </main>
