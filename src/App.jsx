@@ -6,16 +6,16 @@ function App() {
   return (
     <main className="container">
     <h1 className="app-title"> My Notes </h1>
-    <div style={{display: "flex", gap: "1rem"}} >
-      <article style={{margin: 0}}>
-        <div>Note 1</div>
+    
+    <div className="note-list" >
+      <article className="note-item">
+        <div className="note-title">Note 1</div>
       </article>
-      <article style={{margin: 0}}>
-        <div>Note 2</div>
+      <article className="note-item">
+        <div className="note-title" >Note 2</div>
       </article>
     </div>
 
-    <div  style={{marginTop: "1rem"}}>
     <label htmlFor='title'>
       Title
       <input 
@@ -36,7 +36,6 @@ function App() {
     </label>
     <button type="submit">Add Note</button>
   
-    </div>
 
     </main>
   )
