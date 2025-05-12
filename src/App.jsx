@@ -3,8 +3,8 @@ import { useState } from 'react'
 import "@picocss/pico"
 import "./App.css"
 function App() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+
+  const [noteData, setNoteData] = useState({title:'', content:''})
   const [notes, setNotes] = useState([]);
 
   return (
@@ -12,10 +12,13 @@ function App() {
     <h1 className="app-title"> My Notes </h1>
     <div className="note-list" >
       {notes.map ((note, index ) => (
-
        <article key = {index} className="note-item">
         <div className="note-title">{note.title}</div>
-        <button className="note-edit-button">🖋️</button>
+        <button className="note-edit-button" 
+        onClick={() => {
+          setNoteData(note)
+        }}
+        >🖋️</button>
       </article>
 
       ))}
@@ -25,32 +28,40 @@ function App() {
     <label htmlFor='title'>
       Title
       <input 
-        name="title"
         placeholder="title"
         type="text"
         required
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        value={noteData.title}
+        onChange={(e) => setNoteData({ ...noteData, title: e.target.value}) } 
       />
     </label>
 
     <label htmlFor='content'>
         Content      
         <textarea 
-        name="content"
         type="text"
         required
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+        value={noteData.content}
+        onChange={(e) =>  setNoteData({ ...noteData, content: e.target.value})}
       />
     </label>
     <button 
     type="submit"
     onClick={(e) => {
-      e.preventDefault();
-      setNotes([...notes, { title, content }]);
-      setTitle('');
-      setContent('');
+      if (noteData.id){
+        setNotes(
+          notes.map((note) => {
+            if(note.id === noteData.id){
+              return noteData;
+            }
+            return note
+          })
+        )
+
+      }else{
+      setNotes([...notes, { ...noteData, id: Date.now()}]);
+      }
+      setNoteData({title:"", content:""})
     }}
 
     >Add Note</button>
