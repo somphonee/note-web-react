@@ -2,6 +2,28 @@ import { useState } from 'react'
 
 import "@picocss/pico"
 import "./App.css"
+
+
+function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
+  return (
+    <article key={note.id}
+      className={`note-item ${note.id === editing ? "note-editing" : ""}`}>
+      <div className="note-title">{note.title}</div>
+      <button className="note-edit-button"
+        onClick={() => {
+          onEditNote?.()
+        }}
+      >🖋️</button>
+      <butto
+        className="note-delete-button"
+        onClick={() => {
+          onDeleteNote?.()
+        }}
+      >🗑️</butto>
+    </article>
+
+  )
+}
 function App() {
 
   const [noteData, setNoteData] = useState({ title: '', content: '' })
@@ -13,24 +35,21 @@ function App() {
       <h1 className="app-title"> My Notes </h1>
       <div className="note-list" >
         {notes.map((note) => {
-          return (
-            <article key={note.id} className={`note-item ${note.id === noteData.id ? "note-editing" : ""}`}>
-              <div className="note-title">{note.title}</div>
-              <button className="note-edit-button"
-                onClick={() => {
-                  setNoteData(note)
-                }}
-              >🖋️</button>
-              <butto
-                className="note-delete-button"
-                onClick={() => {
-                  setDeletetingItem(note)
-                  // setNotes(notes.filter((n) => n.id !== note.id))
-                }}
-              >🗑️</butto>
-            </article>
 
-          );
+          return (
+            <NoteWidget
+              note={note}
+              editing={note.id === noteData.id}
+              onEditNote={() => {
+                setNoteData(note)
+              }}
+              onDeleteNote={() => {
+                setDeletetingItem(note)
+              }}
+
+            />
+
+          )
         })}
         {deletetingItem && (
           <div className="modal">
