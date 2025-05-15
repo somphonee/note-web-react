@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, use } from 'react'
 
 import "@picocss/pico"
 import "./App.css"
@@ -27,8 +27,34 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
 function App() {
 
   const [noteData, setNoteData] = useState({ title: '', content: '' })
-  const [notes, setNotes] = useState([]);
   const [deletetingItem, setDeletetingItem] = useState(null);
+  const [notes, setNotes] = useState(() => {
+  const savedNotes = localStorage.getItem("notes")
+      return JSON.parse(savedNotes) ?? [];
+  }
+  );
+  
+  useEffect(() => {
+    localStorage.setItem("notes", JSON.stringify(notes))
+
+  },[notes])
+
+
+  function handleStorageChange(event) {
+  console.log("Storage changed", event);
+    const newNotes = JSON.parse(event.newValue);
+    setNotes(newNotes);
+  }
+
+
+  useEffect(() => {
+    window.addEventListener("storage",handleStorageChange)
+    return () => {
+      window.removeEventListener("storage",handleStorageChange)
+    }
+
+  },[])
+
 
   return (
     <main className="container">
