@@ -38,6 +38,12 @@
 
 }
 
+.note-editing{
+
+  /* border: 1px solid lightblue; */
+  outline: 2px solid lightblue;
+}
+
 .note-delete-button{
   margin: 0;
   border-radius: 50%;
