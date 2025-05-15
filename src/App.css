@@ -27,7 +27,6 @@
   font-weight: bold
 }
 .note-edit-button{
-
   margin: 0;
   border-radius: 50%;
   padding: 0;
@@ -37,4 +36,48 @@
   border: initial;
   background: initial;
 
+}
+
+.note-delete-button{
+  margin: 0;
+  border-radius: 50%;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border: initial;
+  background: initial;
+
+}
+
+
+.modal{
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: 1000;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: rgba(0 0 0 0 / 0.6);
+backdrop-filter: blur(4px);
+}
+.modal-content{
+  background-color: #070707;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.modal-actions{
+  display: flex;
+  gap: 0.5rem;
+  
+}
+.modal-actions > * {
+  flex: 1;
 }
