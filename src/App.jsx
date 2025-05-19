@@ -26,39 +26,77 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
 }
 function App() {
 
-  const [noteData, setNoteData] = useState({ title: '', content: '' })
+  const [noteData, setNoteData] = useState(null)
   const [deletetingItem, setDeletetingItem] = useState(null);
   const [notes, setNotes] = useState(() => {
-  const savedNotes = localStorage.getItem("notes")
-      return JSON.parse(savedNotes) ?? [];
+    const savedNotes = localStorage.getItem("notes")
+    return JSON.parse(savedNotes) ?? [];
   }
   );
-  
+
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes))
 
-  },[notes])
+  }, [notes])
 
 
   function handleStorageChange(event) {
-  console.log("Storage changed", event);
+    console.log("Storage changed", event);
     const newNotes = JSON.parse(event.newValue);
     setNotes(newNotes);
   }
 
 
   useEffect(() => {
-    window.addEventListener("storage",handleStorageChange)
+    window.addEventListener("storage", handleStorageChange)
     return () => {
-      window.removeEventListener("storage",handleStorageChange)
+      window.removeEventListener("storage", handleStorageChange)
     }
 
-  },[])
+  }, [])
+  const updateField = (field, value) => {
+        if (noteData.id) {
+                  const newData = {
+                  ...noteData,
+                  [field]:  value,
+
+                }
+                setNotes(
+                  notes.map((note) => {
+                    if (note.id === newData.id) {
+                      return noteData;
+                    }
+                    return note
+                  })
+                );
+                  setNoteData(newData);
+
+
+              } else {
+                const newId = Date.now();
+                const newData = {
+                  ...noteData,
+                    id: newId,
+                  [field] : value,
+
+                };
+                setNotes([...notes, newData]);
+                setNoteData(newData);
+              }
+
+            }
 
 
   return (
     <main className="container">
-      <h1 className="app-title"> My Notes </h1>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1 className="app-title"> My Notes </h1>
+        <button style={{ width: "auto" }} onClick={() => {
+          setNoteData({ title: "", content: "" })
+        }}
+
+        >➕</button>
+      </div>
       <div className="note-list" >
         {notes.map((note) => {
 
@@ -101,51 +139,41 @@ function App() {
       </div>
 
       <br />
+      {noteData && (
+        <>
+          <label htmlFor='title'>
+            Title
+            <input
+              placeholder="title"
+              type="text"
+              required
+              value={noteData.title}
+              onChange={(e) => {
+                updateField('title', e.target.value);
 
-      <label htmlFor='title'>
-        Title
-        <input
-          placeholder="title"
-          type="text"
-          required
-          value={noteData.title}
-          onChange={(e) => setNoteData({ ...noteData, title: e.target.value })}
-        />
-      </label>
+              }}
+            />
+          </label>
 
-      <label htmlFor='content'>
-        Content
-        <textarea
-          type="text"
-          required
-          value={noteData.content}
-          onChange={(e) => setNoteData({ ...noteData, content: e.target.value })}
-        />
-      </label>
-      <button
-        type="submit"
-        onClick={(e) => {
-          if (noteData.id) {
-            setNotes(
-              notes.map((note) => {
-                if (note.id === noteData.id) {
-                  return noteData;
-                }
-                return note
-              })
-            )
+          <label htmlFor='content'>
+            Content
+            <textarea
+              type="text"
+              required
+              value={noteData.content}
+               onChange={(e) => {
+                updateField('content', e.target.value);
+              }}
 
-          } else {
-            setNotes([...notes, { ...noteData, id: Date.now() }]);
-          }
-          setNoteData({ title: "", content: "" })
-        }}
-
-      >Add Note</button>
+            />
+          </label>
+        </>
+      )}
 
 
     </main>
-  )
+  );
 }
+
 
 export default App
