@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useRef } from 'react'
 
 import "@picocss/pico"
 import "./App.css"
@@ -24,6 +24,34 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
 
   )
 }
+
+
+ function useDefounceFn(fn, delay = 1000){
+  const timeout = useRef(null)
+  return( ...args) => {
+     clearTimeout(timeout.current);
+   timeout.current =   setTimeout(() => {
+      fn(...args)
+    }, delay);
+  }
+
+ } 
+
+ function useDefounceValue(value, delay = 1000) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 function App() {
 
   const [noteData, setNoteData] = useState(null)
@@ -33,11 +61,12 @@ function App() {
     return JSON.parse(savedNotes) ?? [];
   }
   );
+  const debouncedNotes = useDefounceValue(notes, 1000);
 
   useEffect(() => {
-    localStorage.setItem("notes", JSON.stringify(notes))
+    localStorage.setItem("notes", JSON.stringify(debouncedNotes))
 
-  }, [notes])
+  }, [debouncedNotes])
 
 
   function handleStorageChange(event) {
@@ -54,6 +83,27 @@ function App() {
     }
 
   }, [])
+
+
+  const saveNate = (newData) => {
+    const isExisted = notes.find(note => note.id === newData.id);
+    if(isExisted){
+      setNotes(
+        notes.map((note) => {
+          if (note.id === newData.id) {
+            return noteData;
+          }
+          return note
+        })
+      );
+    }else{
+
+      setNotes([...notes, newData]);
+    }
+
+  }
+
+
   const updateField = (field, value) => {
         if (noteData.id) {
                   const newData = {
@@ -69,8 +119,8 @@ function App() {
                     return note
                   })
                 );
+                  saveNate(newData);
                   setNoteData(newData);
-
 
               } else {
                 const newId = Date.now();
@@ -79,8 +129,8 @@ function App() {
                     id: newId,
                   [field] : value,
 
-                };
-                setNotes([...notes, newData]);
+                };                
+                saveNate(newData)
                 setNoteData(newData);
               }
 
