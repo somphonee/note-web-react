@@ -1,4 +1,4 @@
-import { useState, useEffect, use, useRef } from 'react'
+import { useState, useEffect, use, useRef, useCallback } from 'react'
 
 import "@picocss/pico"
 import "./App.css"
@@ -53,20 +53,76 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
 }
 
 function App() {
+  const [history, setHistory] = useState([]);
+  const [future, setFuture] = useState([]);
 
   const [noteData, setNoteData] = useState(null)
   const [deletetingItem, setDeletetingItem] = useState(null);
   const [notes, setNotes] = useState(() => {
     const savedNotes = localStorage.getItem("notes")
-    return JSON.parse(savedNotes) ?? [];
-  }
+    return JSON.parse(savedNotes) ?? [];}
   );
+
+  const saveNote = useCallback(
+    (newData) => {
+    const isExisted = notes.find(note => note.id === newData.id);
+    if(isExisted){
+      setNotes(
+        notes.map((note) => {
+          if (note.id === newData.id) {
+            return noteData;
+          }
+          return note
+        })
+      );
+    }else{
+
+      setNotes([...notes, newData]);
+    }
+
+  },[notes]);
   const debouncedNotes = useDefounceValue(notes, 1000);
 
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(debouncedNotes))
 
   }, [debouncedNotes])
+
+
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if((event.ctrlKey || event.metaKey) && event.key === "z"){
+        event.preventDefault();
+        if(event.shiftKey){
+          //redo
+          const lastNote = future[0];
+              if (lastNote) {
+                setHistory([noteData, ...history]);
+                setNoteData(lastNote);
+                saveNote(lastNote);
+                setFuture(future.slice(1));
+              }
+
+        }else{
+          // undo
+           const previous = history[0];
+              if (previous) {
+                setNoteData(previous);
+                setHistory(history.slice(1));
+                saveNote(previous);
+                setFuture([noteData, ...future]);
+              }
+        }
+
+      }
+
+    };
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+    },[future,history, noteData,saveNote]);
+
 
 
   function handleStorageChange(event) {
@@ -85,23 +141,7 @@ function App() {
   }, [])
 
 
-  const saveNate = (newData) => {
-    const isExisted = notes.find(note => note.id === newData.id);
-    if(isExisted){
-      setNotes(
-        notes.map((note) => {
-          if (note.id === newData.id) {
-            return noteData;
-          }
-          return note
-        })
-      );
-    }else{
-
-      setNotes([...notes, newData]);
-    }
-
-  }
+  
 
 
   const updateField = (field, value) => {
@@ -119,8 +159,9 @@ function App() {
                     return note
                   })
                 );
-                  saveNate(newData);
+                  saveNote(newData);
                   setNoteData(newData);
+                  setHistory([noteData, ...history]);
 
               } else {
                 const newId = Date.now();
@@ -130,8 +171,9 @@ function App() {
                   [field] : value,
 
                 };                
-                saveNate(newData)
+                saveNote(newData)
                 setNoteData(newData);
+                setHistory([noteData, ...history]);
               }
 
             }
@@ -217,6 +259,32 @@ function App() {
 
             />
           </label>
+          <div style={{ display: "flex", gap: 16 }}>
+            <button style={{width: "auto"}} 
+            disabled = {!history.length}
+            onClick={() => {
+              const previous = history[0];
+              if (previous) {
+                setHistory(history.slice(1));
+                setNoteData(previous);
+                saveNote(previous);
+                setFuture([noteData, ...future]);
+              }
+            }}>Undo</button>
+            <button style={{width: "auto"}}
+            disabled = {!future.length}
+            onClick={() => {
+              const lastNote = future[0];
+              if (lastNote) {
+                setHistory([noteData, ...history]);
+                setNoteData(lastNote);
+                saveNote(lastNote);
+                setFuture(future.slice(1));
+                
+              }
+            }}
+            >Redo</button>
+          </div>
         </>
       )}
 
