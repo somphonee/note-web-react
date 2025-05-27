@@ -8,7 +8,10 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
   return (
     <article key={note.id}
       className={`note-item ${note.id === editing ? "note-editing" : ""}`}>
-      <div className="note-title">{note.title}</div>
+      <div className="note-title">
+        {note.image && <img src={note.image} style={{width: 24 }}/>}
+        {note.title}
+        </div>
       <button className="note-edit-button"
         onClick={() => {
           onEditNote?.()
@@ -258,6 +261,23 @@ function App() {
               }}
 
             />
+          </label>
+
+          <label >
+            Image
+            <img
+              src={noteData.image}
+              style={{ width: 100, display: "block"}}
+              />
+            <input
+              type="file"
+              onChange={(e) => {
+                if (e.target.files.length) {
+                    updateField('image', URL.createObjectURL(e.target.files[0]));
+                }
+              }}
+            />
+
           </label>
           <div style={{ display: "flex", gap: 16 }}>
             <button style={{width: "auto"}} 
